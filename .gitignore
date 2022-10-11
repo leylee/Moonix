@@ -1,2 +1,10 @@
 .vscode
 .DS_store
+
+*.o
+*.d
+/fs.img
+/Image
+/mksfs
+/kernel/Kernel
+/rootfs/bin
