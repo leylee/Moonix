@@ -20,13 +20,7 @@ asm(".include \"kernel/linkFS.asm\"");
 void
 main()
 {
-    printf("Initializing Moonix...\n");
-    extern void initMemory();       initMemory();
-    extern void initInterrupt();    initInterrupt();
-    extern void initFs();           initFs();
-    extern void initThread();       initThread();
-    extern void initTimer();        initTimer();
-    extern void runCPU();           runCPU();
-    /* 不可能回到此处，因为启动线程的信息已经丢失 */
+    printf("Hello from Moonix!\n");
+    panic("Nothing to do!");
     while(1) {}
 }
