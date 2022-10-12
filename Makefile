@@ -66,7 +66,7 @@ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 &
 LDFLAGS = -z max-page-size=4096
 
 # QEMU 启动选项
-QEMUOPTS = -machine virt -bios default -device loader,file=Image,addr=0x80200000 --nographic
+QEMUOPTS = -machine virt -bios /usr/lib/riscv64-linux-gnu/opensbi/generic/fw_jump.bin -device loader,file=Image,addr=0x80200000 --nographic
 
 all: Image
 
