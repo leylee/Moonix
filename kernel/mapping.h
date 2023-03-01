@@ -41,6 +41,9 @@ typedef struct
     usize rootPpn;      /* 根页表的物理页号 */
 } Mapping;
 
+/* 平台相关的内存映射 */
+extern Segment PlatformMappingSegments[];
+
 usize accessVaViaPa(usize pa);
 
 Mapping newKernelMapping();

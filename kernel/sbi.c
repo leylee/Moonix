@@ -32,6 +32,13 @@ shutdown()
 }
 
 void
+reset()
+{
+    SBI_ECALL_2(0x53525354, 0x02, 0x0);
+    while(1) {}
+}
+
+void
 setTimer(usize time)
 {
     SBI_ECALL_1(SBI_SET_TIMER, time);

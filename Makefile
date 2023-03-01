@@ -44,7 +44,7 @@ TOOLPREFIX := riscv64-linux-gnu-
 ifeq ($(shell uname),Darwin)
 	TOOLPREFIX=riscv64-unknown-elf-
 endif
-CC = $(TOOLPREFIX)gcc
+CC = $(TOOLPREFIX)gcc -g
 AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
@@ -66,13 +66,13 @@ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 &
 LDFLAGS = -z max-page-size=4096
 
 # QEMU 启动选项
-QEMUOPTS = -machine virt -bios /usr/lib/riscv64-linux-gnu/opensbi/generic/fw_jump.bin -device loader,file=Image,addr=0x80200000 --nographic
+QEMUOPTS = -machine virt -bios /usr/lib/riscv64-linux-gnu/opensbi/generic/fw_jump.bin -device loader,file=Image,addr=0x80200000 --nographic 
 
 all: Image
 
 Image: Kernel
 
-Kernel: User $(subst .c,.o,$(wildcard $K/*.c))
+Kernel: User $(subst .c,.o,$(wildcard $K/*.c)) $K/*.h
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/Kernel $(OBJS)
 	$(OBJCOPY) $K/Kernel -O binary Image
 
@@ -82,7 +82,8 @@ User: mksfs $(subst .c,.o,$(wildcard $U/*.c))
 		$(LD) $(LDFLAGS) -o rootfs/bin/$$file $(UPROSBASE) $U/$$file.o;	\
 	done
 	./mksfs
-
+debug: Image
+	$(QEMU) $(QEMUOPTS) -s -S
 mksfs:
 	gcc mkfs/mksfs.c -o mksfs
 

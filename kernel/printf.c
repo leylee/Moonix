@@ -13,7 +13,7 @@
 #include "types.h"
 #include "def.h"
 
-static char digits[] = "0123456789abcdef";
+static char digits[] = "0123456789ABCDEF";
 
 static void
 printint(int xx, int base, int sign)

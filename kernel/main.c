@@ -6,7 +6,7 @@
 
 #include "types.h"
 #include "def.h"
-
+#include "debug.h"
 asm(".include \"kernel/entry.asm\"");
 asm(".include \"kernel/linkFS.asm\"");
 
@@ -22,6 +22,7 @@ main()
 {
     printf("Initializing Moonix...\n");
     extern void initMemory();       initMemory();
+    __PRINT_PC
     extern void initInterrupt();    initInterrupt();
     extern void initFs();           initFs();
     extern void initThread();       initThread();

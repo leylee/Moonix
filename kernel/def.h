@@ -7,6 +7,7 @@
 void consolePutchar(usize c);
 usize consoleGetchar();
 void shutdown() __attribute__((noreturn));
+void reset() __attribute__((noreturn));
 void setTimer(usize time);
 
 /* printf.c */

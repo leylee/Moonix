@@ -9,13 +9,14 @@
 #include "memory.h"
 #include "consts.h"
 #include "riscv.h"
+#include "debug.h"
 
 /* 全局唯一的页帧分配器 */
 FrameAllocator frameAllocator;
 
 /* 分配算法需要实现的三个函数 */
 Allocator newAllocator(usize startPpn, usize endPpn);
-usize alloc();                                           
+usize alloc();
 void dealloc(usize ppn);
 
 void
@@ -62,18 +63,22 @@ deallocFrame(usize startAddr)
 void
 initMemory()
 {
+    
     /* 
      * 开启 sstatus 的 SUM 位
      * 允许内核访问用户内存
      */
+    printf("***** Init Memory *****\n");
     w_sstatus(r_sstatus() | SSTATUS_SUM);
     initFrameAllocator(
         (((usize)(kernel_end) - KERNEL_MAP_OFFSET) >> 12) + 1,
         MEMORY_END_PADDR >> 12
     );
     extern void initHeap(); initHeap();
+    printf("***** Map Kernel *****\n");
     extern void mapKernel(); mapKernel();
-    printf("***** Init Memory *****\n");
+    printf("***** Init Memory Finish *****\n");
+    __PRINT_PC
 }
 
 
