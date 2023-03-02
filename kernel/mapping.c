@@ -42,7 +42,7 @@ PageTableEntry *findEntry(Mapping self, usize vpn)
     int i;
     for (i = 1; i <= 2; i++) {
         /* 页表不存在，创建新页表 */
-        if (*entry == 0) {
+        if (((*entry) & VALID )== 0) {
             usize newPpn = allocFrame() >> 12;
             *entry = (newPpn << 10) | VALID;
         }
@@ -66,7 +66,7 @@ void mapLinearSegment(Mapping self, Segment segment)
         if (*entry != 0) {
             panic("Virtual address already mapped!\n");
         }
-        *entry = ((vpn - KERNEL_PAGE_OFFSET) << 10) | segment.flags | VALID;
+        *entry = ((vpn - KERNEL_PAGE_OFFSET) << 10) | segment.flags | VALID | DIRTY | ACCESSED;
     }
 }
 
@@ -142,32 +142,10 @@ void mapFramedAndCopy(Mapping m, Segment segment, char *data, usize length)
 void activateMapping(Mapping self)
 {
     usize satp = self.rootPpn | (8L << 60);
-    __DEBUG_PRINTCSR(satp)
     printf("will set to %p\n", satp);
-    __DEBUG_PRINTREG(x1)
-    __DEBUG_memconvert(0xFFFFFFFF802011BAL, self.rootPpn);
-    __PRINT_PC
-    __DEBUG_PRINTREG(x2)
-
-    __DEBUG_PRINTREG(x2)
-    extern void bootstacktop();
-    printf("stack limit: %p\n", bootstacktop);
-
-    __PRINT_PC
-    usize x;
-    asm volatile("csrr %0, satp" : "=r"(x));
-    printf("x=%p", x);
-    for (usize volatile *p = (usize *)kernel_start; p < (usize *)kernel_end; p++){
-        if (*p != *((usize *)(__DEBUG_memconvert((usize)p, self.rootPpn))))
-            printf("mismatch at %p\n",p);
-    }
-    __PRINT_PC
     asm volatile("csrw satp, %[satp_to_set]" : : [satp_to_set] "r"(satp));
     asm volatile("sfence.vma");
-    __PRINT_PC
-    printf("pc is %p",__DEBUG_memconvert(0xFFFFFFFF80202ECEL, self.rootPpn));
-
-    __DEBUG_PRINTREG(ra)
+    return;
 }
 
 /*
@@ -180,24 +158,24 @@ Mapping newKernelMapping()
     Mapping m = newMapping();
 
     /* .text 段，r-x */
-    Segment text = {(usize)text_start, (usize)rodata_start, 1L | READABLE | EXECUTABLE};
+    Segment text = {(usize)text_start, (usize)rodata_start, READABLE | EXECUTABLE};
     mapLinearSegment(m, text);
 
     /* .rodata 段，r-- */
-    Segment rodata = {(usize)rodata_start, (usize)data_start, 1L | READABLE};
+    Segment rodata = {(usize)rodata_start, (usize)data_start, READABLE};
     mapLinearSegment(m, rodata);
 
     /* .data 段，rw- */
-    Segment data = {(usize)data_start, (usize)bss_start, 1L | READABLE | WRITABLE};
+    Segment data = {(usize)data_start, (usize)bss_start, READABLE | WRITABLE};
     mapLinearSegment(m, data);
 
     /* .bss 段，rw- */
-    Segment bss = {(usize)bss_start, (usize)kernel_end, 1L | READABLE | WRITABLE};
+    Segment bss = {(usize)bss_start, (usize)kernel_end, READABLE | WRITABLE};
     mapLinearSegment(m, bss);
 
     /* 剩余空间，rw- */
     Segment other = {(usize)kernel_end, (usize)(MEMORY_END_PADDR + KERNEL_MAP_OFFSET),
-                     1L | READABLE | WRITABLE};
+                     READABLE | WRITABLE};
     mapLinearSegment(m, other);
 
     return m;
@@ -252,13 +230,11 @@ void mapExtInterruptArea(Mapping m)
 void mapKernel()
 {
     Mapping m = newKernelMapping();
-    printf("m = 0x%p\n", m.rootPpn << 12);
     printf("***** Map Ext Interrupt Area *****\n");
     // mapExtInterruptArea(m);
     printf("***** Activate Mapping *****\n");
     activateMapping(m);
     printf("***** Map Kernel Finish *****\n");
-    __PRINT_PC
 }
 
 /* 获得线性映射后的虚拟地址 */
