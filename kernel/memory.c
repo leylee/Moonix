@@ -78,7 +78,6 @@ initMemory()
     printf("***** Map Kernel *****\n");
     extern void mapKernel(); mapKernel();
     printf("***** Init Memory Finish *****\n");
-    __PRINT_PC
 }
 
 

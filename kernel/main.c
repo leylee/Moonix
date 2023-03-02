@@ -22,7 +22,6 @@ main()
 {
     printf("Initializing Moonix...\n");
     extern void initMemory();       initMemory();
-    __PRINT_PC
     extern void initInterrupt();    initInterrupt();
     extern void initFs();           initFs();
     extern void initThread();       initThread();

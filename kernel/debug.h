@@ -1,3 +1,4 @@
+#include "def.h"
 #ifndef _DEBUG_H
 #define _DEBUG_H
 #define __PRINT_PC                                                                                 \
@@ -23,7 +24,7 @@
 
 inline int __DEBUG_isLeaf(usize PTE);
 inline usize __DEBUG_memconvert(usize vaddr, usize rootPpn);
-#define printf(...)
+
 inline usize __DEBUG_memconvert(usize vaddr, usize rootPpn)
 {
     /* 虚拟地址转换为物理地址Sv39 */
@@ -85,7 +86,7 @@ inline usize __DEBUG_memconvert(usize vaddr, usize rootPpn)
     }
     return -1;
 }
-#undef printf
+
 inline int __DEBUG_isLeaf(usize PTE)
 {
     usize v = PTE & 0x1L;
