@@ -184,22 +184,19 @@ Mapping newKernelMapping()
 #ifdef NEZHA_D1 /* NEZHA_D1 */
 void mapExtInterruptArea(Mapping m)
 {
+    /* PLIC Registers */
+    Segment plic_segment = {(usize)0x10000000 + KERNEL_MAP_OFFSET,
+                            (usize)0x14000000 + KERNEL_MAP_OFFSET, READABLE | WRITABLE};
+    mapLinearSegment(m, plic_segment);
 
-    Segment = {(usize)0x0C000000 + KERNEL_MAP_OFFSET, (usize)0x0C001000 + KERNEL_MAP_OFFSET,
-               1L | READABLE | WRITABLE};
-    mapLinearSegment(m, s1);
+    /* UART Registers */
+    Segment uart0_segment = {(usize)0x02500000 + KERNEL_MAP_OFFSET,
+                             (usize)0x02502000 + KERNEL_MAP_OFFSET, READABLE | WRITABLE};
+    mapLinearSegment(m, uart0_segment);
 
-    Segment s2 = {(usize)0x0C002000 + KERNEL_MAP_OFFSET, (usize)0x0C003000 + KERNEL_MAP_OFFSET,
-                  1L | READABLE | WRITABLE};
-    mapLinearSegment(m, s2);
-
-    Segment s3 = {(usize)0x0C201000 + KERNEL_MAP_OFFSET, (usize)0x0C202000 + KERNEL_MAP_OFFSET,
-                  1L | READABLE | WRITABLE};
-    mapLinearSegment(m, s3);
-
-    Segment s4 = {(usize)0x10000000 + KERNEL_MAP_OFFSET, (usize)0x10001000 + KERNEL_MAP_OFFSET,
-                  1L | READABLE | WRITABLE};
-    mapLinearSegment(m, s4);
+    Segment gpio_segment = {(usize)0x02000000 + KERNEL_MAP_OFFSET,
+    (usize)0x02000800 + KERNEL_MAP_OFFSET, READABLE | WRITABLE};
+    mapLinearSegment(m, gpio_segment);
 }
 #else /* QEMU */
 /*
@@ -231,7 +228,7 @@ void mapKernel()
 {
     Mapping m = newKernelMapping();
     printf("***** Map Ext Interrupt Area *****\n");
-    // mapExtInterruptArea(m);
+    mapExtInterruptArea(m);
     printf("***** Activate Mapping *****\n");
     activateMapping(m);
     printf("***** Map Kernel Finish *****\n");

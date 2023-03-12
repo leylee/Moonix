@@ -62,6 +62,11 @@ CFLAGS += -I.
 
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
+# 适配 D1
+ifdef PLATFORM
+	CFLAGS += -D$(PLATFORM)
+endif
+
 # ld 链接选项
 LDFLAGS = -z max-page-size=4096
 

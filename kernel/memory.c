@@ -84,7 +84,12 @@ initMemory()
 /* 以下为分配算法的具体实现 */
 
 /* 最大可用的内存长度，从 0x80000000 ~ 0x88000000 */
+#ifdef NEZHA_D1
+/* 从 0x80000000 ~ 0xBFFFFFFF*/
+#define MAX_PHYSICAL_PAGES 0x20000
+#else
 #define MAX_PHYSICAL_PAGES 0x8000
+#endif
 
 struct
 {
