@@ -12,6 +12,9 @@ ThreadPool
 newThreadPool(Scheduler scheduler)
 {
     ThreadPool pool;
+    for (usize i = 0; i < MAX_THREAD; ++i) {
+        pool.threads[i].occupied = 0;
+    }
     pool.scheduler = scheduler;
     return pool;
 }

@@ -26,6 +26,7 @@ main()
     extern void initFs();           initFs();
     extern void initThread();       initThread();
     extern void initTimer();        initTimer();
+    extern void initStdin();        initStdin();
     extern void runCPU();           runCPU();
     /* 不可能回到此处，因为启动线程的信息已经丢失 */
     while(1) {}

@@ -49,3 +49,10 @@ popChar()
         }
     }
 }
+
+void initStdin() {
+    STDIN.buf.head = 0;
+    STDIN.buf.tail = 0;
+    STDIN.pushed.waitQueue.head = 0;
+    STDIN.pushed.waitQueue.tail = 0;
+}
