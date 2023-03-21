@@ -49,6 +49,10 @@ popFront(Queue *q)
 int
 isEmpty(Queue *q)
 {
+#ifdef DEBUG
+    printf("q->head = %p\n", q->head);
+    printf("q->tail = %p\n", q->tail);
+#endif
     if(q->head == q->tail && q->head == 0) {
         return 1;
     } else {

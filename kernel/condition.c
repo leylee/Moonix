@@ -17,6 +17,9 @@
 void
 waitCondition(Condvar *self)
 {
+#ifdef DEBUG
+    printf("waitCondition\n");
+#endif /* DEBUG */
     pushBack(&self->waitQueue, getCurrentTid());
     yieldCPU();
 }

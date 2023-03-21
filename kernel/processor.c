@@ -29,6 +29,22 @@ addToCPU(Thread thread)
     addToPool(&CPU.pool, thread);
 }
 
+void printThread(Thread *thread) {
+    printf("contextAddr        %p\n", thread->contextAddr);
+    printf("kstack             %p\n", thread->kstack);
+    ThreadContext *tcontext = (ThreadContext *) thread->contextAddr;
+    printf("tcontext.ra         %p\n", tcontext->ra);
+    printf("tcontext.s[0]       %p\n", tcontext->s[0]);
+    printf("tcontext.s[1]       %p\n", tcontext->s[1]);
+    printf("tcontext.s[2]       %p\n", tcontext->s[2]);
+    printf("tcontext.s[3]       %p\n", tcontext->s[3]);
+    printf("tcontext.s[4]       %p\n", tcontext->s[4]);
+    printf("tcontext.s[5]       %p\n", tcontext->s[5]);
+    printf("tcontext.satp       %p\n", tcontext->satp);
+    InterruptContext *icontext = (InterruptContext *) (thread->contextAddr + 14 * 8);
+    printf("icontext.sepc       %p\n", icontext->sepc);
+}
+
 /* 
  * 调度线程的运行逻辑
  * 在线程用完时间片或线程结束后，会返回调度线程
@@ -49,8 +65,10 @@ idleMain()
             /* 有线程可以运行就切换到该线程 */
             CPU.current = rt;
             CPU.occupied = 1;
+#ifdef DEBUG
+            printThread(&CPU.current.thread);
+#endif
             switchThread(&CPU.idle, &CPU.current.thread);
-
             /*
              * 线程用尽时间片或运行结束
              * 切换回 idle 线程处，修改线程状态，进行下一次调度
@@ -109,7 +127,7 @@ exitFromCPU(usize code)
 
 void
 runCPU()
-{   
+{
     /*
      * 在启动线程的最后调用
      * 从启动线程切换进 idle，boot 线程信息丢失，不会再回来

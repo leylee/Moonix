@@ -66,6 +66,9 @@ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 &
 ifdef PLATFORM
 	CFLAGS += -D$(PLATFORM)
 endif
+ifdef DEBUG
+	CFLAGS += -DDEBUG
+endif
 
 # ld 链接选项
 LDFLAGS = -z max-page-size=4096

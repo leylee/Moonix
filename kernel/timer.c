@@ -21,6 +21,7 @@ initTimer()
     w_sstatus(r_sstatus() | SSTATUS_SIE);
     /* 初始化第一次时钟中断 */
     setTimeout();
+    printf("***** Init Timer Finished *****\n");
 }
 
 void
