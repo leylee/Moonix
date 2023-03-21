@@ -42,7 +42,7 @@ PageTableEntry *findEntry(Mapping self, usize vpn)
     int i;
     for (i = 1; i <= 2; i++) {
         /* 页表不存在，创建新页表 */
-        if (((*entry) & VALID )== 0) {
+        if (((*entry) & VALID) == 0) {
             usize newPpn = allocFrame() >> 12;
             *entry = (newPpn << 10) | VALID;
         }
@@ -84,7 +84,7 @@ void mapFramedSegment(Mapping m, Segment segment)
         if (*entry != 0) {
             panic("Virtual address already mapped!\n");
         }
-        *entry = (allocFrame() >> 2) | segment.flags | VALID;
+        *entry = (allocFrame() >> 2) | segment.flags | VALID | DIRTY | ACCESSED;
     }
 }
 
@@ -105,7 +105,7 @@ void mapFramedAndCopy(Mapping m, Segment segment, char *data, usize length)
             panic("Virtual address already mapped!\n");
         }
         usize pAddr = allocFrame();
-        *entry = (pAddr >> 2) | segment.flags | VALID;
+        *entry = (pAddr >> 2) | segment.flags | VALID | DIRTY | ACCESSED;
         /*
          * 复制数据到目标位置
          * 访问目标位置还得通过虚拟地址访问
