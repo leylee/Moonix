@@ -98,6 +98,84 @@ void initInterrupt()
  */
 void external()
 {
+#ifdef NEZHA_D1
+    volatile uint32 *const PLIC = (uint32 *)(0x10000000 + KERNEL_MAP_OFFSET);
+    const usize PLIC_ID_UART0 = 18;
+    const usize PLIC_CLAIM = 0x201004 >> 2;
+
+    uint32 plic_iid;
+
+#ifdef DEBUG
+    const usize PLIC_IP_REG_UART0 = (0x1000 >> 2) + (PLIC_ID_UART0 / 32);
+    uint32 plic_ip0;
+    plic_ip0 = PLIC[PLIC_IP_REG_UART0];
+    printf("Init PLIC pending reg is %p\n", (usize)plic_ip0);
+#endif /* DEBUG */
+    plic_iid = PLIC[PLIC_CLAIM];
+#ifdef DEBUG
+    plic_ip0 = PLIC[PLIC_IP_REG_UART0];
+    printf("PLIC pending after read PLIC_CLAIM is %p\n", (usize)plic_ip0);
+#endif /* DEBUG */
+
+    if (plic_iid != PLIC_ID_UART0) {
+        printf("PLIC ID is %p\n", (usize)plic_iid);
+        panic("Unknown PLIC ID");
+    }
+
+    volatile uint32 *const UART0 = (uint32 *)(0x02500000 + KERNEL_MAP_OFFSET);
+    const usize UART_RBR = 0x0000 >> 2;
+    const usize UART_USR = 0x007C >> 2;
+    const usize UART_IIR = 0x0008 >> 2;
+    const uint32 UART_FLAG_RFNE = 1 << 3;
+    const uint32 UART_FLAG_IID = 0x0F;
+    const uint32 UART_IID_RDA = 0b0100;
+    const uint32 UART_IID_CTI = 0b1100;
+    const uint32 UART_IID_NONE = 0x01;
+    // const uint32 UART_FEFLAG_DISABLE = 0x0;
+
+    while (1) {
+        uint32 iir = UART0[UART_IIR];
+        uint32 iid = iir & UART_FLAG_IID;
+#ifdef DEBUG
+        const uint32 UART_FLAG_FEFLAG = 0b11000000;
+        uint32 feflag = iir & UART_FLAG_FEFLAG;
+        printf("FIFO is %s\n", feflag ? "enabled" : "disabled");
+#endif /* DEBUG */
+        if (iid == UART_IID_RDA || iid == UART_IID_CTI) {
+#ifdef DEBUG
+            printf("IID: %p\n", (usize)iid);
+#endif /* DEBUG */
+            while (1) {
+                uint32 usr = UART0[UART_USR];
+                uint32 rfne = usr & UART_FLAG_RFNE;
+                if (!rfne) {
+                    break;
+                }
+                uint32 rbr = UART0[UART_RBR];
+                char ch = rbr & 0xFF;
+#ifdef DEBUG
+                printf("Read character %c, %p\n", ch, (usize)rbr);
+#endif /* DEBUG */
+
+                if (ch == '\r') {
+                    pushChar('\n');
+                } else {
+                    pushChar(ch);
+                }
+            }
+        } else if (iid == UART_IID_NONE) {
+            break;
+        } else {
+            printf("Unknown IID: %p\n", (usize)iid);
+        }
+    }
+
+    PLIC[PLIC_CLAIM] = plic_iid;
+#ifdef DEBUG
+    plic_ip0 = PLIC[PLIC_IP_REG_UART0];
+    printf("PLIC pending after write PLIC_CLAIM is %p\n", (usize)plic_ip0);
+#endif /* DEBUG */
+#else
     usize ret = consoleGetchar();
     /*
      * 调用 SBI 接口获得输入的字符，可能出现错误
@@ -111,6 +189,7 @@ void external()
             pushChar(ch);
         }
     }
+#endif /* NEZHA_D1 */
 }
 
 /*
