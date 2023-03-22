@@ -81,7 +81,7 @@ all: Image
 Image: Kernel
 
 Kernel: User $(subst .c,.o,$(wildcard $K/*.c)) $K/*.h
-	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/Kernel $(OBJS)
+	$(LD) $(LDFLAGS) -Map=Kernel.map -T $K/kernel.ld -o $K/Kernel $(OBJS)
 	$(OBJCOPY) $K/Kernel -O binary Image
 
 User: mksfs $(subst .c,.o,$(wildcard $U/*.c))
