@@ -76,5 +76,6 @@ initThread()
 
     // 声明成局部变量，后续不需要再切换回启动线程
     usize bootAddr;
-    switchContext(&bootAddr, &contextAddr[0]);
+    currentThread = 0;
+    switchContext(&bootAddr, &contextAddr[currentThread]);
 }
