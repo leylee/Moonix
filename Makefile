@@ -50,7 +50,7 @@ Image: Kernel
 # 将所有可执行文件链接成内核，并生成内核镜像
 Kernel: $(subst .c,.o,$(wildcard $K/*.c)) $(subst .S,.o,$(wildcard $K/*.S))
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/Kernel $(OBJS)
-	$(OBJCOPY) $K/Kernel -O binary Image
+	$(OBJCOPY) $K/Kernel -O binary --set-section-flags .bss=alloc,load,contents Image
 
 # 编译所有的 .c 文件
 $K/%.o: $K/%.c
