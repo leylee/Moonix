@@ -82,7 +82,7 @@ Image: Kernel
 
 Kernel: User $(subst .c,.o,$(wildcard $K/*.c)) $K/*.h
 	$(LD) $(LDFLAGS) -Map=Kernel.map -T $K/kernel.ld -o $K/Kernel $(OBJS)
-	$(OBJCOPY) $K/Kernel -O binary Image
+	$(OBJCOPY) $K/Kernel -O binary --set-section-flags .bss=alloc,load,contents Image
 
 User: mksfs $(subst .c,.o,$(wildcard $U/*.c))
 	mkdir -p rootfs/bin
