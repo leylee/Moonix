@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "RISC-V",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "NEZHA_D1"
+            ],
+            "compilerPath": "/usr/bin/riscv64-linux-gnu-gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "${default}",
+            "compilerArgs": [
+                "-Werror",
+                "-Wall"
+            ]
+        }
+    ],
+    "version": 4
+}
