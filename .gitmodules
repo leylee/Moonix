@@ -1,0 +1,3 @@
+[submodule "OpenSBI-C906"]
+	path = OpenSBI-C906
+	url = https://github.com/Tina-Linux/OpenSBI-C906.git
