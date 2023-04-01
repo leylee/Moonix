@@ -69,6 +69,12 @@ endif
 ifdef DEBUG
 	CFLAGS += -DDEBUG
 endif
+ifndef OPENSBI_CROSS_COMPILE
+	OPENSBI_CROSS_COMPILE := $(TOOLPREFIX)
+endif
+ifndef DEBUG_SERVER
+	DEBUG_SERVER := T-HeadDebugServer
+endif
 
 # ld 链接选项
 LDFLAGS = -z max-page-size=4096
@@ -103,8 +109,9 @@ $U/%.o: $U/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f */*.d */*.o $K/Kernel Image Image.asm mksfs fs.img
+	rm -f */*.d */*.o $K/Kernel Image Image.asm mksfs fs.img fw_jump.bin
 	rm -rf rootfs
+	make -C OpenSBI-C906 clean
 	
 asm: Kernel
 	$(OBJDUMP) -S $K/Kernel > Image.asm
@@ -119,3 +126,26 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 
 qemu-gdb: Image asm
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
+
+fw_jump.bin:
+	make -C OpenSBI-C906 CROSS_COMPILE=$(OPENSBI_CROSS_COMPILE) PLATFORM=thead/c910 FW_JUMP_ADDR=0x80200000 FW_TEXT_START=0x80000000 PLATFORM_RISCV_ISA=rv64gcxthead -j16
+	cp OpenSBI-C906/build/platform/thead/c910/firmware/fw_jump.bin ./
+
+.PHONY: xfel-load
+xfel-load: fw_jump.bin Image
+	xfel version
+	xfel ddr d1
+	xfel write 0x80000000 fw_jump.bin
+	xfel write 0x80200000 Image
+
+.PHONY: xfel-run
+xfel-run: xfel-load
+	xfel exec 0x80000000
+
+.PHONY: xfel-gdb
+xfel-gdb: xfel-load
+	$(TOOLPREFIX)gdb -x gdbinit
+	
+.PHONY: debug-server
+debug-server:
+	$(DEBUG_SERVER)
