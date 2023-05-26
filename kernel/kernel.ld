@@ -50,6 +50,8 @@ SECTIONS
     .bss : {
         *(.sbss .bss .bss.*)
     }
+    . = ALIGN(4K);
+    bss_end = .;
 
     /* 内核结束地址 */
     . = ALIGN(4K);
