@@ -36,7 +36,7 @@ PageTableEntry
         if(*entry == 0) {
             // 页表不存在，创建新页表
             usize newPpn = allocFrame() >> 12;
-            *entry = (newPpn << 10) | VALID;
+            *entry = (newPpn << 10) | VALID | ACCESSED | DIRTY;
         }
         usize nextPageAddr = (*entry & PDE_MASK) << 2;
         entry = &(((PageTable *)accessVaViaPa(nextPageAddr))->entries[levels[i]]);
@@ -56,7 +56,7 @@ mapLinearSegment(Mapping self, Segment segment)
         if(*entry != 0) {
             panic("Virtual address already mapped!\n");
         }
-        *entry = ((vpn - KERNEL_PAGE_OFFSET) << 10) | segment.flags | VALID;
+        *entry = ((vpn - KERNEL_PAGE_OFFSET) << 10) | segment.flags | VALID | ACCESSED | DIRTY;
     }
 }
 
