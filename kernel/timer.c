@@ -10,6 +10,7 @@ void setTimeout();
 void
 initTimer()
 {
+    TICKS = 0;
     // 时钟中断使能
     w_sie(r_sie() | SIE_STIE);
     // 监管者模式中断使能
