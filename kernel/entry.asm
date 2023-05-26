@@ -2,6 +2,19 @@
     .globl _start
     # 设置了 sp 并跳转到 main
 _start:
+    # 清空 .bss 段
+    lui t0, %hi(bss_start)
+    addi t0, t0, %lo(bss_start)
+    lui t1, %hi(bss_end)
+    addi t1, t1, %lo(bss_end)
+    li t2, 0xffffffff00000000
+    sub t0, t0, t2 # t0 = t0 - t2
+    sub t1, t1, t2 # t1 = t1 - t2
+clear_bss:
+    sw zero, 0(t0)
+    addi t0, t0, 4
+    blt t0, t1, clear_bss # if t0 <= t1 then clear_bss
+
     # 计算 bootpagetable 的物理页号
     lui t0, %hi(bootpagetable)
     li t1, 0xffffffff00000000
