@@ -52,3 +52,12 @@ asm: Kernel
 
 qemu: Image
 	$(QEMU) $(QEMUOPTS)
+
+
+
+xfel-run:
+	xfel version
+	xfel ddr d1
+	xfel write 0x80000000 fw_jump.bin
+	xfel write 0x80200000 Image
+	xfel exec 0x80000000
